@@ -515,7 +515,8 @@ void UpdateSaveBestData() {
     // update our best times
     for (uint i = 0; i < currTimesRec.Length; i++) {
       if (i >= bestTimesRec.Length) {
-        CreateOrUpdateBestTime(currTimesRec[i].checkpointId, currTimesRec[i].time, currTimesRec[i].speed, currTimesRec[i].speedAverage);
+        CreateOrUpdateBestTime(currTimesRec[i].checkpointId, currTimesRec[i].time, 
+                               currTimesRec[i].speed, currTimesRec[i].speedAverage);
       } else {
         if (currTimesRec[i].time < bestTimesRec[i].time) {
           bestTimesRec[i].time = currTimesRec[i].time;
@@ -1019,10 +1020,13 @@ int CalulateEstimatedTime() {
   int currentLapTime = 0;
   for (int i = 0; i < int(estCompTimes.Length); i++) {
     if (currCP > i) {
-       currentFinishTime += (i == 0) ? currLapTimesRec[i].time : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
-       currentLapTime += (i == 0) ? currLapTimesRec[i].time : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
+       currentFinishTime += (i == 0) ? currLapTimesRec[i].time 
+                              : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
+       currentLapTime += (i == 0) ? currLapTimesRec[i].time 
+                              : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
     } else {
-      currentFinishTime += (i == 0) ? estCompTimes[i].time : (estCompTimes[i].time -  estCompTimes[i-1].time);
+      currentFinishTime += (i == 0) ? estCompTimes[i].time 
+                              : (estCompTimes[i].time -  estCompTimes[i-1].time);
     }
   }
 
@@ -1030,7 +1034,8 @@ int CalulateEstimatedTime() {
   // going up
   if (updatingEstimatedTime && int(estCompTimes.Length) > currCP &&
       !isFinished && !waitForCarReset && GetCurrentPlayerRaceTime() > 0) {
-    currentLapTime += (currCP == 0) ? estCompTimes[currCP].time : (estCompTimes[currCP].time - estCompTimes[currCP-1].time);
+    currentLapTime += (currCP == 0) ? estCompTimes[currCP].time 
+                                : (estCompTimes[currCP].time - estCompTimes[currCP-1].time);
     if (currentLapTime < GetCurrentPlayerRaceTime()) {
       int different = GetCurrentPlayerRaceTime() - currentLapTime;
       currentFinishTime += different;
@@ -1359,7 +1364,6 @@ void Render() {
 
     if (UI::BeginTable("info", avaliableTopBar / 2,
                        UI::TableFlags::SizingFixedFit)) {
-      PushPBColor();
       if (hasFinishedMap && shouldShowTheoretical) {
         UI::TableNextColumn();
         string text = "Optimal: ";
@@ -1372,13 +1376,16 @@ void Render() {
           // if we have finished then grab the best of both times
           // this is possibly bad, maybe only grab the lowest time anyway>
           if (shouldShowLowest) {
-            bestSplit = (i == 0) ? GetLowestTime(i) : (GetLowestTime(i) - GetLowestTime(i-1));
+            bestSplit = (i == 0) ? GetLowestTime(i) 
+                            : (GetLowestTime(i) - GetLowestTime(i-1));
           } else {
-            bestSplit = (i == 0) ? bestTimesRec[i].time : (bestTimesRec[i].time - bestTimesRec[i - 1].time);
+            bestSplit = (i == 0) ? bestTimesRec[i].time 
+                            : (bestTimesRec[i].time - bestTimesRec[i - 1].time);
           }
           int pbSplit;
           if (pbTimesRec.Length > 0) {
-            pbSplit = (i == 0) ? pbTimesRec[i].time : pbTimesRec[i].time - pbTimesRec[i - 1].time;
+            pbSplit = (i == 0) ? pbTimesRec[i].time 
+                          : pbTimesRec[i].time - pbTimesRec[i - 1].time;
           }
           theoreticalBest += ((pbSplit == 0 || bestSplit < pbSplit) ?  bestSplit : pbSplit);
         }
@@ -1432,7 +1439,6 @@ void Render() {
         UI::SameLine();
         DrawDeltaText(delta);
       }
-      PopPBColor();
 
       if (hasFinishedMap && showTopBestDelta) {
         UI::TableNextColumn();
@@ -1529,7 +1535,6 @@ void Render() {
           UI::Text("B. Delta");
         }
 
-        PushPBColor();
         if (showPB) {
           UI::TableNextColumn();
           SetMinWidth(timeWidth);
@@ -1546,7 +1551,6 @@ void Render() {
           SetMinWidth(deltaWidth);
           UI::Text("B-PB. Delta");
         }
-        PopPBColor();
 
         if (showCurrentSpeed) {
           UI::TableNextColumn();
@@ -1576,7 +1580,6 @@ void Render() {
           UI::Text("B. S. Delta");
         }
 
-        PushPBColor();
         if (showPBSpeed) {
           UI::TableNextColumn();
           SetMinWidth(deltaWidth);
@@ -1587,7 +1590,6 @@ void Render() {
           SetMinWidth(deltaWidth);
           UI::Text("PB. S. Delta");
         }
-        PopPBColor();
 
         if (showCurrentAverageSpeed) {
           UI::TableNextColumn();
@@ -1617,7 +1619,6 @@ void Render() {
           UI::Text("A. B. S. Delta");
         }
 
-        PushPBColor();
         if (showPBAverageSpeed) {
           UI::TableNextColumn();
           SetMinWidth(deltaWidth);
@@ -1628,7 +1629,6 @@ void Render() {
           SetMinWidth(deltaWidth);
           UI::Text("A. PB. S. Delta");
         }
-        PopPBColor();
 #if TURBO
         if (shouldShowSTMcomparison) {
           if (showSTMcomparison) {
@@ -1746,7 +1746,6 @@ void Render() {
         }
 
         if (pbTimesRec.Length > i) {
-          PushPBColor();
 
           // Personal Best
           if (showPB) {
@@ -1773,7 +1772,6 @@ void Render() {
             DrawDeltaText(delta);
           }
 
-          PopPBColor();
         } else {
           UI::TableNextColumn();
           UI::TableNextColumn();
@@ -1817,7 +1815,6 @@ void Render() {
           }
         }
 
-        PushPBColor();
         if (showPBSpeed) {
           UI::TableNextColumn();
           if (pbTimesRec.Length > i) {
@@ -1830,7 +1827,6 @@ void Render() {
             DrawSpeedDeltaText(pbTimesRec[i].speed - currTimesRec[i].speed);
           }
         }
-        PopPBColor();
 
         // speedAverage
         if (showCurrentAverageSpeed) {
@@ -1874,7 +1870,6 @@ void Render() {
           }
         }
 
-        PushPBColor();
         if (showPBAverageSpeed) {
           UI::TableNextColumn();
           if (pbTimesRec.Length > i) {
@@ -1888,7 +1883,6 @@ void Render() {
                                currTimesRec[i].speedAverage);
           }
         }
-        PopPBColor();
 
 #if TURBO
         if (shouldShowSTMcomparison) {
@@ -1940,21 +1934,6 @@ void Render() {
   }
 }
 
-void PushPBColor() {
-  if (showPBColor && isFinished) {
-    if (pbTime >= finishRaceTime) {
-      UI::PushStyleColor(UI::Col::Text, vec4(1.0, 1.0, 1.0, 1.0));
-    } else {
-      UI::PushStyleColor(UI::Col::Text, vec4(1.0, 0.0, 0.0, 1.0));
-    }
-  }
-}
-
-void PopPBColor() {
-  if (showPBColor && isFinished) {
-    UI::PopStyleColor();
-  }
-}
 
 vec4 lerpMap(float t, float min, float max, vec4 minCol, vec4 maxCol) {
   float value = (t - min) / (max - min);

@@ -182,7 +182,7 @@ bool enableLogging = false;
 bool saveData = true;
 
 [Setting category="Data" name="Only Save on run complete" description="Only stores/updates best times when a run is finished."]
-bool saveWhenCompleted = true;
+bool saveWhenCompleted = false;
 
 [Setting category="Data" name="Reset Data for Map" description="This will clear the best times for this map (does not delete file)"]
 bool resetMapData = false;

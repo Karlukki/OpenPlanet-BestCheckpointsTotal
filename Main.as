@@ -7,7 +7,7 @@
 #endif
 
 // timing
-int lastCpTime = 0;
+int multiLapTime = 0;
 // last waypoint cp id
 int lastCP = 0;
 int currentLap = 0;
@@ -166,10 +166,10 @@ void ResetRace() {
   currLapTimesRec = {};
   lastLapTimesRec = {};
   isFinished = false;
-  lastCpTime = 0;
   currentLap = 0;
   currCP = 0;
   finishRaceTime = 0;
+  multiLapTime = 0;
   cpCycleFromTime = Time::get_Now();
   speedTracker.Reset();
 
@@ -281,18 +281,20 @@ void Update(float dt) {
 
   // have we changed checkpoint?
   if (cp != lastCP) {
-    DebugText("- Checkpoint change " + lastCP + "/" + cp);
+    DebugText("- Checkpoint change " + lastCP + "->" + cp);
 
     lastCP = cp;
 
     int raceTime = GetPlayerCheckpointTime();
 
-    int deltaTime = raceTime - lastCpTime;
+    int deltaTime = raceTime - multiLapTime;
+
+    if (isMultiLap && !multilapCpsSeperate && IsWaypointFinish(cp)) { // at start/finish
+      multiLapTime = raceTime;
+    }
 
     DebugText("Delta time: " + deltaTime);
     DebugText("Race time: " + raceTime);
-
-    lastCpTime = raceTime;
 
     if (raceTime <= 0 || deltaTime <= 0) {
       DebugText("Checkpoint time negative..");
@@ -306,7 +308,7 @@ void Update(float dt) {
     }
 
     // add our time (best current time for run)
-    CreateOrUpdateCurrentTime(cp, deltaTime, GetPlayerSpeed(),
+      CreateOrUpdateCurrentTime(currCP, deltaTime, GetPlayerSpeed(),
                               speedTracker.GetAverage());
 
 #if TURBO || MP4
@@ -317,20 +319,22 @@ void Update(float dt) {
     }
 #endif
 
-    DebugText("NumCps:" + int(currLapTimesRec.Length) + "/" + numCps);
 
-    if (int(bestTimesRec.Length) < numCps ||
-        (isMultiLap && int(currLapTimesRec.Length) == numCps)) {
-      CreateOrUpdateBestTime(cp, deltaTime, GetPlayerSpeed(),
-                             speedTracker.GetAverage());
+    if (isMultiLap && int(currLapTimesRec.Length) == numCps) { // at start/finish
+      currLapTimesRec = {};
+      UpdateSaveBestData(); 
     }
-    //   }
 
     // update time for laps
-    CreateOrUpdateCurrentLapTime(cp, deltaTime, GetPlayerSpeed(),
-                                 speedTracker.GetAverage());
+    CreateOrUpdateCurrentLapTime(currCP, deltaTime, GetPlayerSpeed(),
+                                    speedTracker.GetAverage());
+
+    DebugText("NumCps:" + int(currLapTimesRec.Length) + "/" + numCps);
 
     currCP++;
+    if (isMultiLap && !multilapCpsSeperate && IsWaypointFinish(cp)) { // at start/finish
+      currCP = 0;
+    }
 
     // check for finish
 #if TMNEXT
@@ -343,7 +347,10 @@ void Update(float dt) {
       lastCP = 0;
       currCP = 0;
 #endif
-      hasFinishedMap = true;
+
+      if (!multilapCpsSeperate) {
+        hasFinishedMap = true;
+      }
       currentLap++;
       if (isMultiLap) {
         DebugText("Lap finish: " + currentLap + "/" + numLaps);
@@ -355,6 +362,7 @@ void Update(float dt) {
       if (IsPlayerFinished()) {
 #endif
         DebugText("Race Finished");
+        hasFinishedMap = true;
 
         waitForCarReset = true;
         resetData = true;
@@ -505,20 +513,22 @@ void UpdateSaveBestData() {
 
   if (save) {
     // update our best times
-    for (int i = 0; i < Math::Min(currTimesRec.Length, bestTimesRec.Length); i++) {
-      if (currTimesRec[i].time < bestTimesRec[i].time) {
-        bestTimesRec[i].time = currTimesRec[i].time;
-      }
-      if (currTimesRec[i].speed > bestTimesRec[i].speed) {
-        bestTimesRec[i].speed = currTimesRec[i].speed;
-      }
-      if (currTimesRec[i].speedAverage > bestTimesRec[i].speedAverage) {
-        bestTimesRec[i].speedAverage = currTimesRec[i].speedAverage;
+    for (uint i = 0; i < currTimesRec.Length; i++) {
+      if (i >= bestTimesRec.Length) {
+        CreateOrUpdateBestTime(currTimesRec[i].checkpointId, currTimesRec[i].time, currTimesRec[i].speed, currTimesRec[i].speedAverage);
+      } else {
+        if (currTimesRec[i].time < bestTimesRec[i].time) {
+          bestTimesRec[i].time = currTimesRec[i].time;
+        }
+        if (currTimesRec[i].speed > bestTimesRec[i].speed) {
+          bestTimesRec[i].speed = currTimesRec[i].speed;
+        }
+        if (currTimesRec[i].speedAverage > bestTimesRec[i].speedAverage) {
+          bestTimesRec[i].speedAverage = currTimesRec[i].speedAverage;
+        }
       }
     }
-
     UpdatePersonalBestTimes();
-
     SaveFile();
   }
 }
@@ -955,6 +965,10 @@ void UpdateWaypoints() {
     isMultiLap = false;
   }
 
+  if (isMultiLap && multilapCpsSeperate) {
+    numCps = numCps * numLaps;
+  }
+
   hasFinishedMap = true;
 #endif
 }
@@ -1005,10 +1019,10 @@ int CalulateEstimatedTime() {
   int currentLapTime = 0;
   for (int i = 0; i < int(estCompTimes.Length); i++) {
     if (currCP > i) {
-      currentFinishTime += currLapTimesRec[i].time;
-      currentLapTime += currLapTimesRec[i].time;
+       currentFinishTime += (i == 0) ? currLapTimesRec[i].time : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
+       currentLapTime += (i == 0) ? currLapTimesRec[i].time : ( currLapTimesRec[i].time -  currLapTimesRec[i-1].time);
     } else {
-      currentFinishTime += estCompTimes[i].time;
+      currentFinishTime += (i == 0) ? estCompTimes[i].time : (estCompTimes[i].time -  estCompTimes[i-1].time);
     }
   }
 
@@ -1016,7 +1030,7 @@ int CalulateEstimatedTime() {
   // going up
   if (updatingEstimatedTime && int(estCompTimes.Length) > currCP &&
       !isFinished && !waitForCarReset && GetCurrentPlayerRaceTime() > 0) {
-    currentLapTime += estCompTimes[currCP].time;
+    currentLapTime += (currCP == 0) ? estCompTimes[currCP].time : (estCompTimes[currCP].time - estCompTimes[currCP-1].time);
     if (currentLapTime < GetCurrentPlayerRaceTime()) {
       int different = GetCurrentPlayerRaceTime() - currentLapTime;
       currentFinishTime += different;
@@ -1180,6 +1194,7 @@ void SaveFile() {
 }
 
 bool quickMultiLapEnableCache = false;
+bool multilapCpsSeperateCache = false;
 void OnSettingsChanged() {
   if (resetMapData) {
     DebugText("saved data reset");
@@ -1191,7 +1206,15 @@ void OnSettingsChanged() {
   }
 
   {
+    // force on
+    if (multilapCpsSeperate) {
+      multiLapOverride = true;
+    }
+    
     // has option changed
+    if (multilapCpsSeperateCache != multilapCpsSeperate) {
+      UpdateWaypoints();
+    }
     if (quickMultiLapEnableCache != quickMultiLapEnable) {
       showCurrentBest = showCurrent = showLastLap = showLastLapDelta =
           quickMultiLapEnable;
@@ -1206,6 +1229,7 @@ void OnSettingsChanged() {
   }
 
   // update quick
+  multilapCpsSeperateCache = multilapCpsSeperate;
   quickMultiLapEnableCache = quickMultiLapEnable;
 }
 
@@ -1343,14 +1367,20 @@ void Render() {
         bool shouldShowLowest = isFinished || (currentLap != 0);
 
         int theoreticalBest = 0;
-        for (uint i = 0; i < bestTimesRec.Length; i++) {
+        int bestSplit;
+        for (uint i = 0; i < bestTimesRec.Length ; i++) {
           // if we have finished then grab the best of both times
           // this is possibly bad, maybe only grab the lowest time anyway>
           if (shouldShowLowest) {
-            theoreticalBest += GetLowestTime(i);
+            bestSplit = (i == 0) ? GetLowestTime(i) : (GetLowestTime(i) - GetLowestTime(i-1));
           } else {
-            theoreticalBest += bestTimesRec[i].time;
+            bestSplit = (i == 0) ? bestTimesRec[i].time : (bestTimesRec[i].time - bestTimesRec[i - 1].time);
           }
+          int pbSplit;
+          if (pbTimesRec.Length > 0) {
+            pbSplit = (i == 0) ? pbTimesRec[i].time : pbTimesRec[i].time - pbTimesRec[i - 1].time;
+          }
+          theoreticalBest += ((pbSplit == 0 || bestSplit < pbSplit) ?  bestSplit : pbSplit);
         }
         text += "~" + Time::Format(theoreticalBest);
 
@@ -1368,8 +1398,8 @@ void Render() {
             time = currLapTimesRec[numCps - 1].time -
                    bestTimesRec[numCps - 1].time;
           } else {
-            time =
-                currLapTimesRec[numCps - 1].time - pbTimesRec[numCps - 1].time;
+            time = currLapTimesRec[numCps - 1].time -
+                   pbTimesRec[numCps - 1].time;
           }
         }
         time += lastEstimatedTime;
@@ -1620,22 +1650,16 @@ void Render() {
 #endif
       } // end header
 
+      uint colCount = Math::Max(bestTimesRec.Length, currTimesRec.Length);
       uint minNum =
-          Math::Min(bestTimesRec.Length, Math::Abs(numCheckpointsOnScreen));
+          Math::Min(colCount, Math::Abs(numCheckpointsOnScreen));
       uint offset = 0;
-      bool cycleThoughCheckpoints = false; // isFinished || !hasPlayerRaced;
+      bool cycleThoughCheckpoints = isFinished || !hasPlayerRaced;
 
       int test = currCP;
 
-      if (minNum < bestTimesRec.Length) {
-        if (test > int(minNum) / 2) {
-          offset = test - minNum / 2;
-        }
-
-        if (test + minNum - 1 > int(bestTimesRec.Length) &&
-            (!isMultiLap || isFinished)) {
-          offset = int(bestTimesRec.Length) - minNum;
-        }
+      if (minNum < colCount) {
+        offset = colCount - minNum;
 
         if (cycleThoughCheckpoints) {
           int postOffset =
@@ -1649,7 +1673,7 @@ void Render() {
         uint i = offset + q;
 
         if (isMultiLap || cycleThoughCheckpoints) {
-          i = i % bestTimesRec.Length;
+          i = i % colCount;
         }
         UI::TableNextRow();
 
@@ -1657,7 +1681,7 @@ void Render() {
             (int(i) == currCP && !invalidRun && darkenCurrentLap);
         isRenderingCurrentCheckpoint =
             isRenderingCurrentCheckpoint ||
-            (i == 0 && minNum < bestTimesRec.Length && cycleThoughCheckpoints);
+            (i == 0 && minNum < colCount && cycleThoughCheckpoints);
 
         if (isRenderingCurrentCheckpoint) {
           UI::PushStyleColor(UI::Col::Text, vec4(0.7, 0.7, 0.7, 1.0));
@@ -1666,7 +1690,11 @@ void Render() {
         // CP
         if (showCheckpoints) {
           UI::TableNextColumn();
-          UI::Text("" + (i + 1));
+          if (i+1 == numCps) {
+            UI::Text("fin");
+          } else {
+            UI::Text("" + (i + 1));
+          }
         }
 
         if (showCurrentBest) {
@@ -1713,7 +1741,7 @@ void Render() {
           UI::TableNextColumn();
           if (bestTimesRec.Length > i && isCurrentCPValid(i)) {
             int delta = getCurrentCPTime(i) - bestTimesRec[i].time;
-            DrawDeltaText(delta);
+            DrawDeltaText(delta, true);
           }
         }
 
@@ -1933,7 +1961,7 @@ vec4 lerpMap(float t, float min, float max, vec4 minCol, vec4 maxCol) {
   return Math::Lerp(minCol, maxCol, value);
 }
 
-void DrawDeltaText(int delta) {
+void DrawDeltaText(int delta, bool gold = false) {
   int scale = 1;
   if (!shouldDeltaLerpColor) {
     scale *= 0;
@@ -1948,6 +1976,10 @@ void DrawDeltaText(int delta) {
   vec4 negDeltaLight;
   vec4 posDelta = vec4(1.0, 0.0, 0.0, 1.0);
   vec4 posDeltaLight = vec4(1.0, 0.4, 0.4, 1.0);
+  if (gold) {
+    posDelta = vec4(0.8, 0.8, 0.8, 1.0);
+    posDeltaLight = vec4(0.8, 0.8, 0.8, 1.0);
+  }
   if (shouldDeltaBeBlue) { // why does blue look so shit?
     negDelta = vec4(0.4, 0.4, 1.0, 1.0);
     negDeltaLight = vec4(0.5, 0.5, 1.0, 1.0);
@@ -1956,14 +1988,19 @@ void DrawDeltaText(int delta) {
     negDelta = vec4(0.0, 1.0, 0.0, 1.0);
     negDeltaLight = vec4(0.5, 1.0, 0.5, 1.0);
   }
+  if (gold) {
+    negDelta = vec4(1.0, 0.843, 0.0, 1.0);
+    negDeltaLight = vec4(1.0, 0.843, 0.0, 1.0);
+  }
+
   if (delta > 0) {
     UI::PushStyleColor(UI::Col::Text, lerpMap(delta, 0, 100 * scale + 1,
                                               posDeltaLight * colorScale,
                                               posDelta * colorScale));
     UI::Text("+" + Time::Format(delta));
   } else if (delta == 0) {
-    UI::PushStyleColor(UI::Col::Text, negDelta * colorScale);
-    UI::Text("-" + Time::Format(-delta));
+    UI::PushStyleColor(UI::Col::Text, posDelta * colorScale);
+    UI::Text("+" + Time::Format(-delta));
   } else {
     UI::PushStyleColor(UI::Col::Text, lerpMap(delta, -100 * scale - 1, 0,
                                               negDelta * colorScale,

@@ -22,141 +22,145 @@ string fontFace = "";
 [Setting category="Display Settings" name="Font size" min=8 max=48 description="To avoid a memory issue with loading a large number of fonts, you must reload the plugin for font changes to be applied."]
 int fontSize = 16;
 
-// ---------------- GENERAL SETTINGS ------------
+// ---------------- MULTLAP SETTINGS ------------
 
-[Setting category="Options" name="Enable Logging" description="will start logging text to get an idea about what the programs doing"]
-bool enableLogging = false;
+[Setting category="Multilap" name="Multi lap checkpoints registered seperately" description="In a multilap every checkpoint you pass through will be registered as a seperate new checkpoint. Forces 'Multi lap data override' on. "]
+bool multilapCpsSeperate = false;
 
-[Setting category="Options" name="Multi lap data override" description="should we let multi laps override our fastest time's (false will only use the first lap's time)"]
+[Setting category="Multilap" name="Multi lap data override" description="should we let multi laps override our fastest time's (false will only use the first lap's time)"]
 bool multiLapOverride = true;
 
-[Setting category="Options" name="Estimated time update" description="Should the estimated time display update during a run?"]
-bool updatingEstimatedTime = true;
+[Setting category="Multilap" name="Quick MultiLap Enable" description="turns on a few options that are useful for multilap"]
+bool quickMultiLapEnable = false;
 
-[Setting category="Options" name="Compare to current lap (multi lap)" description="current times for delta calulation should use the current lap times or the best lap times from this run "]
+[Setting category="Multilap" name="Compare to current lap (multi lap)" description="current times for delta calulation should use the current lap times or the best lap times from this run "]
 bool shouldCompareToCurrentLap = false;
 
-[Setting category="Options" name="Should Delta have a color lerp" description="makes delta values closer to 0 be slightly lighter"]
+// ---------------- GENERAL SETTINGS ------------
+
+
+[Setting category="General" name="Estimated time update" description="Should the estimated time display update during a run?"]
+bool updatingEstimatedTime = true;
+
+[Setting category="General" name="Should Delta have a color lerp" description="makes delta values closer to 0 be slightly lighter"]
 bool shouldDeltaLerpColor = true;
 
-[Setting category="Options" name="Should negatiive delta be blue?" description="changes the negative delta from green to blue"]
+[Setting category="General" name="Should negative delta be blue?" description="changes the negative delta from green to blue"]
 bool shouldDeltaBeBlue = false;
 
-[Setting category="Options" name="Darken current lap" description="slightly darkens the current lap"]
+[Setting category="General" name="Darken current checkpoint" description="slightly darkens the current checkpoint"]
 bool darkenCurrentLap = true;
 
-[Setting category="Options" name="Estimated Time Use optimal Time" description="when off it uses the PB time as a base for estimated time, otherwise it'll use the optimal time"]
+[Setting category="General" name="Estimated Time Use optimal Time" description="when off it uses the PB time as a base for estimated time, otherwise it'll use the optimal time"]
 bool estimatedTimeUseOptimal = true;
 
 // ---------------- TOP BAR ------------
 
-[Setting category="Window Bar Options" name="Show Optimal best" description="Adds theoretical/Optimal best time to the window header"]
+[Setting category="Window Header" name="Show Optimal best" description="Adds theoretical/Optimal best time to the window header"]
 bool showTheoreticalBest = true;
 
-[Setting category="Window Bar Options" name="Show estimated time" description="Adds estimated finish time to the window header"]
+[Setting category="Window Header" name="Show estimated time" description="Adds estimated finish time to the window header"]
 bool showEstimated = true;
 
-[Setting category="Window Bar Options" name="Show map personal best time" description="Show the personal best time the plugin has stored (if using the plugin after already playing a map these values wont match up)"]
+[Setting category="Window Header" name="Show map personal best time" description="Show the personal best time the plugin has stored (if using the plugin after already playing a map these values wont match up)"]
 bool showPersonalBest = false;
 
-[Setting category="Window Bar Options" name="Show Delta against PB" description="will match the value the game displays on the screen"]
+[Setting category="Window Header" name="Show Delta against PB" description="will match the value the game displays on the screen"]
 bool showTopPBDelta = false;
 
-[Setting category="Window Bar Options" name="Show delta against Best" description="will display the current delta against Best times"]
+[Setting category="Window Header" name="Show delta against Best" description="will display the current delta against Best times"]
 bool showTopBestDelta = false;
 
-[Setting category="Window Bar Options" name="Show Lap delta against the Last (MultiLap)" description="will display the current delta against the last lap"]
+[Setting category="Window Header" name="Show Lap delta against the Last (MultiLap)" description="will display the current delta against the last lap"]
 bool showTopLapDelta = false;
 
-[Setting category="Window Bar Options" name="Show checkpoint average speed Value" description="will display the current average speed for this checkpoint"]
+[Setting category="Window Header" name="Show checkpoint average speed Value" description="will display the current average speed for this checkpoint"]
 bool showTopCPAverageSpeed = false;
 
 // ---------------- Main Display Settings ------------
 
-[Setting category="Window Options" name="Show checkpoints" description="Adds a number to the left for each checkpoint in the map"]
+[Setting category="Window Table" name="Show checkpoints" description="Adds a number to the left for each checkpoint in the map"]
 bool showCheckpoints = true;
 
-[Setting category="Window Options" name="Show current best times" description="Adds current best times to the window"]
+[Setting category="Window Table" name="Show current best times" description="Adds current best times to the window"]
 bool showCurrentBest = false;
 
-[Setting category="Window Options" name="Show current lap times (multi lap)" description="Adds current times to the window"]
+[Setting category="Window Table" name="Show current lap times (multi lap)" description="Adds current times to the window"]
 bool showCurrent = false;
 
-[Setting category="Window Options" name="Show last lap Times (multi lap)" description="Adds last lap time to the window (only for multi lap)"]
+[Setting category="Window Table" name="Show last lap Times (multi lap)" description="Adds last lap time to the window (only for multi lap)"]
 bool showLastLap = false;
 
-[Setting category="Window Options" name="Show last lap Delta (multi lap)" description="Adds delta to the last lap to the window (only for multi lap)"]
+[Setting category="Window Table" name="Show last lap Delta (multi lap)" description="Adds delta to the last lap to the window (only for multi lap)"]
 bool showLastLapDelta = false;
 
-[Setting category="Window Options" name="Show best/Theoretical Times" description="Adds best times to the window"]
+[Setting category="Window Table" name="Show best/Theoretical Times" description="Adds best times to the window"]
 bool showBest = true;
 
-[Setting category="Window Options" name="Show best/Theoretical Delta" description="Adds best delta to the window"]
+[Setting category="Window Table" name="Show best/Theoretical Delta" description="Adds best delta to the window"]
 bool showBestDelta = true;
 
-[Setting category="Window Options" name="Show personal best Times" description="Adds personal best times to the window"]
+[Setting category="Window Table" name="Show personal best Times" description="Adds personal best times to the window"]
 bool showPB = true;
 
-[Setting category="Window Options" name="Show personal best Delta" description="Adds personal best delta to the window"]
+[Setting category="Window Table" name="Show personal best Delta" description="Adds personal best delta to the window"]
 bool showPBDelta = true;
 
-[Setting category="Window Options" name="Show personal best Color" description="Shows red on the PB times when it's below your pb"]
+[Setting category="Window Table" name="Show personal best Color" description="Shows red on the PB times when it's below your pb"]
 bool showPBColor = true;
 
-[Setting category="Window Options" name="Show best to personal best Delta" description="Adds best to personal best delta to the window"]
+[Setting category="Window Table" name="Show best to personal best Delta" description="Adds best to personal best delta to the window"]
 bool showBestPBDelta = false;
 
-[Setting category="Window Options" name="Quick MultiLap Enable" description="turns on a few options that are useful for multilap"]
-bool quickMultiLapEnable = false;
 
-[Setting category="Window Options" name="Num Checkpoints on screen" description="max numnber of checkpoints allowed to be on screen"]//, min="3"]
+[Setting category="Window Table" name="Num Checkpoints on screen" description="max numnber of checkpoints allowed to be on screen" min=1 max=50]
 int numCheckpointsOnScreen = 15;
 
-[Setting category="Window Options" name="Checkpoint Cycle Speed (Seconds)" description="how quick the checkpoints will cycle after a map is finished"]//, min=0]
+[Setting category="Window Table" name="Checkpoint Cycle Speed (Seconds)" description="how quick the checkpoints will cycle after a map is finished" min=0.1 max=10]
 float finishedCheckpointCycleSpeed = 3.0f;
 
 // ---------------- Speed Display Settings ------------
 
-[Setting category="Window Options speed" name="Show checkpoint speed" description="shows the speed the car hit the checkpoint at"]
+[Setting category="Window Table Speed" name="Show checkpoint speed" description="shows the speed the car hit the checkpoint at"]
 bool showCurrentSpeed = false;
 
-[Setting category="Window Options speed" name="Show last lap speed (multi lap)" description="Adds last lap speed to the window (only for multi lap)"]
+[Setting category="Window Table Speed" name="Show last lap speed (multi lap)" description="Adds last lap speed to the window (only for multi lap)"]
 bool showLastLapSpeed = false;
 
-[Setting category="Window Options speed" name="Show last lap speed Delta (multi lap)" description="Adds delta of the last lap speed to the window (only for multi lap)"]
+[Setting category="Window Table Speed" name="Show last lap speed Delta (multi lap)" description="Adds delta of the last lap speed to the window (only for multi lap)"]
 bool showLastLapSpeedDelta = false;
 
-[Setting category="Window Options speed" name="Show best speed" description="Shows the highest speed you have gone through this checkpoint at"]
+[Setting category="Window Table Speed" name="Show best speed" description="Shows the highest speed you have gone through this checkpoint at"]
 bool showBestSpeed = false;
 
-[Setting category="Window Options speed" name="Show best to current speed Delta" description="shows Delta between best and current speed"]
+[Setting category="Window Table Speed" name="Show best to current speed Delta" description="shows Delta between best and current speed"]
 bool showBestSpeedDelta = false;
 
-[Setting category="Window Options speed" name="Show PB speed" description="Shows the speed you have gone through this checkpoint for the last stored PB"]
+[Setting category="Window Table Speed" name="Show PB speed" description="Shows the speed you have gone through this checkpoint for the last stored PB"]
 bool showPBSpeed = false;
 
-[Setting category="Window Options speed" name="Show PB to current speed Delta" description="shows Delta between last PB speed and current speed"]
+[Setting category="Window Table Speed" name="Show PB to current speed Delta" description="shows Delta between last PB speed and current speed"]
 bool showPBSpeedDelta = false;
 //average speed
-[Setting category="Window Options speed" name="Show checkpoint average speed" description="shows the average speed the car hit the checkpoint at"]
+[Setting category="Window Table Speed" name="Show checkpoint average speed" description="shows the average speed the car hit the checkpoint at"]
 bool showCurrentAverageSpeed = false;
 
-[Setting category="Window Options speed" name="Show last lap average speed (multi lap)" description="Adds last lap average speed to the window (only for multi lap)"]
+[Setting category="Window Table Speed" name="Show last lap average speed (multi lap)" description="Adds last lap average speed to the window (only for multi lap)"]
 bool showLastLapAverageSpeed = false;
 
-[Setting category="Window Options speed" name="Show last lap average speed Delta (multi lap)" description="Adds delta of the last lap average speed to the window (only for multi lap)"]
+[Setting category="Window Table Speed" name="Show last lap average speed Delta (multi lap)" description="Adds delta of the last lap average speed to the window (only for multi lap)"]
 bool showLastLapAverageSpeedDelta = false;
 
-[Setting category="Window Options speed" name="Show best average speed" description="Shows the highest average speed you have gone through this checkpoint at"]
+[Setting category="Window Table Speed" name="Show best average speed" description="Shows the highest average speed you have gone through this checkpoint at"]
 bool showBestAverageSpeed = false;
 
-[Setting category="Window Options speed" name="Show best to current average speed Delta" description="shows Delta between best and current average speed"]
+[Setting category="Window Table Speed" name="Show best to current average speed Delta" description="shows Delta between best and current average speed"]
 bool showBestAverageSpeedDelta = false;
 
-[Setting category="Window Options speed" name="Show PB average speed" description="Shows the average speed you have gone through this checkpoint for the last stored PB"]
+[Setting category="Window Table Speed" name="Show PB average speed" description="Shows the average speed you have gone through this checkpoint for the last stored PB"]
 bool showPBAverageSpeed = false;
 
-[Setting category="Window Options speed" name="Show PB to current average speed Delta" description="shows Delta between last PB average speed and current average speed"]
+[Setting category="Window Table Speed" name="Show PB to current average speed Delta" description="shows Delta between last PB average speed and current average speed"]
 bool showPBAverageSpeedDelta = false;
 
 #if TURBO
@@ -171,7 +175,10 @@ bool showPBSTMcomparison = true;
 
 // ---------------- JSON Data settings ------------
 
-[Setting category="Data" name="Save on disk" description="Stops saving data to disk - When this is disabled you will be able to load old data"]
+[Setting category="Data" name="Enable Logging" description="will start logging text to get an idea about what the programs doing"]
+bool enableLogging = false;
+
+[Setting category="Data" name="Save on disk" description="Stops saving data to disk - When this is disabled you will not be able to load old data"]
 bool saveData = true;
 
 [Setting category="Data" name="Only Save on run complete" description="Only stores/updates best times when a run is finished."]

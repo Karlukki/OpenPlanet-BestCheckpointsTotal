@@ -958,7 +958,6 @@ void UpdateWaypoints() {
   }
 
   if (isMultiLap && numLaps == 1) {
-    numCps -= 1;
     isMultiLap = false;
   }
 

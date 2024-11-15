@@ -46,7 +46,7 @@ bool updatingEstimatedTime = true;
 bool shouldDeltaLerpColor = true;
 
 [Setting category="General" name="Should negative delta be blue?" description="changes the negative delta from green to blue"]
-bool shouldDeltaBeBlue = false;
+bool shouldDeltaBeBlue = true;
 
 [Setting category="General" name="Darken current checkpoint" description="slightly darkens the current checkpoint"]
 bool darkenCurrentLap = true;

@@ -633,13 +633,13 @@ int GetPlayerCheckpointTime() {
   int raceTime;
   int estRaceTime = GetCurrentPlayerRaceTime();
   int uiRaceTime = GetUICheckpointTime();
-  if (uiRaceTime == -1) {
+  if (uiRaceTime == 0) {
     raceTime = estRaceTime;
   } else {
     raceTime = uiRaceTime;
   }
-  // print("ui: " + Time::Format(uiRaceTime) + " - norm: " +
-  // Time::Format(raceTime));
+  // print("ui: " + Time::Format(uiRaceTime) + " - est: " +
+  // Time::Format(estRaceTime));
   return raceTime;
 #elif TURBO || MP4
   CTrackManiaPlayer @smPlayer = GetPlayer();
@@ -696,99 +696,15 @@ int GetActualPlayerStartTime() {
 
 #if TMNEXT
 int GetUICheckpointTime() {
-  CGameCtnNetwork @network = GetApp().Network;
-  if (network is null) {
-    return -1;
-  }
-  CGameManiaAppPlayground @appPlayground = network.ClientManiaAppPlayground;
-  if (appPlayground is null) {
-    return -1;
-  }
-
-  // search? instead of hardcode?
-  CGameUILayer @raceUILayer = appPlayground.UILayers[8];
-  if (raceUILayer is null) {
-    return -1;
-  }
-  CGameManialinkPage @linkPage = raceUILayer.LocalPage;
-  if (linkPage is null) {
-    return -1;
-  }
-  CGameManialinkControl @race_Checkpoint = linkPage.GetClassChildren_Result[0];
-  if (race_Checkpoint is null ||
-      race_Checkpoint.ControlId != "Race_Checkpoint") { // validation
-    return -1;
-  }
-  CGameManialinkControl @frame_checkpoint =
-      cast<CGameManialinkFrame>(race_Checkpoint).Controls[0];
-  if (frame_checkpoint is null) {
-    return -1;
-  }
-  CGameManialinkControl @frame_race =
-      cast<CGameManialinkFrame>(frame_checkpoint).Controls[0];
-  if (frame_race is null) {
-    return -1;
-  }
-  CGameManialinkControl @frame_race_time =
-      cast<CGameManialinkFrame>(frame_race).Controls[0];
-  if (frame_race_time is null ||
-      cast<CGameManialinkFrame>(frame_race_time).Controls.Length != 2) {
-    return -1;
-  }
-  CGameManialinkControl @label_race_time_ctrl =
-      cast<CGameManialinkFrame>(frame_race_time).Controls[1];
-  if (label_race_time_ctrl is null) {
-    return -1;
-  }
-  CGameManialinkLabel @label_race_time =
-      cast<CGameManialinkLabel>(label_race_time_ctrl);
-  if (label_race_time is null) {
-    return -1;
-  }
-  // print(label_race_time.Value);
-
-  return ConvertStringToTime(label_race_time.Value);
+#if DEPENDENCY_MLHOOK && DEPENDENCY_MLFEEDRACEDATA 
+    const MLFeed::HookRaceStatsEventsBase_V3@ mlf = MLFeed::GetRaceData_V3();
+    const MLFeed::PlayerCpInfo_V3@ plf = mlf.GetPlayer_V3(MLFeed::LocalPlayersName);
+    return plf.LastCpTime;
+#else
+    return 0;
+#endif
 }
 #endif
-
-int ConvertStringToTime(const string &in input) {
-  string[] seconds = SplitString(input, ":");
-  if (seconds.Length != 2) {
-    return -1;
-  }
-  string[] microSecond = SplitString(seconds[1], ".");
-  if (microSecond.Length != 2) {
-    return -1;
-  }
-  int micro = Text::ParseInt(microSecond[1]);
-  int second = Text::ParseInt(microSecond[0]);
-  int minute = Text::ParseInt(seconds[0]);
-  second *= 1000;
-  minute *= 1000 * 60;
-  int result = micro + second + minute;
-  // print(Time::Format(1000));
-  // print(Time::Format(result));
-  return result;
-}
-
-// splits strings, removes split character
-string[] SplitString(const string &in input, const string &in split) {
-  // how to just pass a char??
-  string current = "";
-  string[] output;
-  for (int i = 0; i < input.Length; i++) {
-    if (input[i] == split[0]) {
-      output.InsertLast(current);
-      current = "";
-    } else {
-      // how to do just add a char?
-      current += " ";
-      current[current.Length - 1] = input[i];
-    }
-  }
-  output.InsertLast(current);
-  return output;
-}
 
 int GetCurrentCheckpoint() {
 #if TMNEXT

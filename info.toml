@@ -4,3 +4,6 @@ author   = "Karlukki"
 category = "Race"
 version = "0.1.0"
 siteid = 649
+
+[script]
+optional_dependencies = [ "MLHook", "MLFeedRaceData" ]

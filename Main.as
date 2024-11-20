@@ -1,10 +1,4 @@
-// openplanet doesnt like comments on same line as #if statement?
-// just here for visual studio code intellisense help
-#if __INTELLISENSE__
-#include "STMCPTimes.h"
-#include "Settings.as"
-#include "cppIntellisense.h"
-#endif
+
 
 // timing
 int multiLapTime = 0;
@@ -1046,14 +1040,7 @@ void LoadFile() {
     return;
   }
 
-  string baseFolder = IO::FromDataFolder('');
-  string folder = baseFolder + 'BestCP';
-  if (!IO::FolderExists(folder)) {
-    IO::CreateFolder(folder);
-    DebugText("Created folder: " + folder);
-  }
-
-  jsonFile = folder + '/' + currentMap + ".json";
+  jsonFile = IO::FromStorageFolder(currentMap + ".json");
 
   firstLoad = !IO::FileExists(jsonFile);
 
@@ -1369,7 +1356,7 @@ void Render() {
         int bestSplit;
         for (uint i = 0; i < bestTimesRec.Length ; i++) {
           // if we have finished then grab the best of both times
-          // this is possibly bad, maybe only grab the lowest time anyway>
+          // this is possibly bad, maybe only grab the lowest time anyway
           if (shouldShowLowest) {
             bestSplit = (i == 0) ? GetLowestTime(i) 
                             : (GetLowestTime(i) - GetLowestTime(i-1));
@@ -2069,37 +2056,3 @@ int BoolToInt(bool value) {
   return 0;
 }
 
-// UIModule_Race_TimeGap
-// Network
-// ClientManiaAppPlayground
-// UILayers
-// 10
-// LocalPage
-// GetClassChidren_Result
-// Frame 0
-// Controls 0
-// Frame 0
-// Control
-// childs 0
-// childs 0
-// childs 1
-// childs 3 (bottom right time diff window 4th player down)
-
-// UIModule_Race_Checkpoint
-// Network
-// ClientManiaAppPlayground
-// UILayers
-// 8
-// LocalPage
-// GetClassChidren_Result
-// Frame 0
-// Controls 0
-// Frame 0
-// Controls 0
-// Frame 0
-// Controls 0
-// Frame 0
-// Controls 0
-// Frame 0
-// Controls 0
-// controls 1 (label)

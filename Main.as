@@ -827,9 +827,11 @@ void UpdateWaypoints() {
   if (map is null) {
     return;
   }
-  numLaps = map.TMObjective_NbLaps;
-  isMultiLap = map.TMObjective_IsLapRace;
+
+  numLaps = Math::Max(map.TMObjective_NbLaps, 1);
+  isMultiLap = map.TMObjective_IsLapRace && numLaps > 1;
   DebugText("Map Laps: " + numLaps + " Is MultiLap: " + isMultiLap);
+
 #if TMNEXT
   MwFastBuffer<CGameScriptMapLandmark @> landmarks =
       playground.Arena.MapLandmarks;
@@ -865,10 +867,6 @@ void UpdateWaypoints() {
       numCps++;
       strictMode = false;
     }
-  }
-
-  if (isMultiLap && numLaps == 1) {
-    isMultiLap = false;
   }
 
   if (isMultiLap && multilapCpsSeperate) {

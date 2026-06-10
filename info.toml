@@ -2,7 +2,7 @@
 name     = "Best Checkpoints (total time)"
 author   = "Karlukki"
 category = "Race"
-version = "0.1.0"
+version = "0.1.1"
 siteid = 649
 
 [script]
